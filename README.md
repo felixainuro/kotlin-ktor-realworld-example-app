@@ -27,9 +27,6 @@ This codebase is a partial implementation. Be aware of what works before buildin
 | Articles: list, filter, feed, get, update, delete | Stubs, logic still commented out |
 | Comments, profiles, follow | Stubs |
 
-Known security gaps that are not fixed yet: the JWT signing key is hard-coded, so anyone with the
-source can mint a token, and passwords are an unsalted HMAC with that same key. See AGENT_WORKLOG.md.
-
 The RealWorld Postman suite currently passes 88 of 104 assertions. CI fails if any assertion
 that passes today stops passing (see `spec-api/passing-assertions.txt`).
 
@@ -81,6 +78,13 @@ Build and run the tests:
 
 Start the server:
 > ./gradlew run
+
+Optional environment variables:
+
+| Variable | Effect |
+|---|---|
+| `JWT_SECRET` | Signing key for login tokens, at least 32 characters. Without it a random key is generated at startup, so tokens end with the process. That matches the in-memory database. |
+| `H2_PG_SERVER=true` | Starts H2's PostgreSQL-protocol server on localhost:5435 for inspecting the database. Off by default. |
 
 Run the RealWorld Postman suite in [spec-api](spec-api) against the running server (needs Node.js):
 > APIURL=http://localhost:8080/api ./spec-api/run-api-tests.sh
