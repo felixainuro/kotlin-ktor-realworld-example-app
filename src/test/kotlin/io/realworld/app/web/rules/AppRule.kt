@@ -64,7 +64,10 @@ object TestDatabase {
             while (rs.next()) tables += rs.getString(1)
         }
         exec("SET REFERENTIAL_INTEGRITY FALSE")
-        tables.forEach { exec("TRUNCATE TABLE \"$it\" RESTART IDENTITY") }
-        exec("SET REFERENTIAL_INTEGRITY TRUE")
+        try {
+            tables.forEach { exec("TRUNCATE TABLE \"$it\" RESTART IDENTITY") }
+        } finally {
+            exec("SET REFERENTIAL_INTEGRITY TRUE")
+        }
     }
 }

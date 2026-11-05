@@ -16,9 +16,11 @@ import org.jetbrains.exposed.sql.count
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.insertAndGetId
+import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.sql.Connection
 import java.util.Date
 
 internal object Articles : LongIdTable() {
@@ -74,9 +76,17 @@ class ArticleRepository {
         articleId.value
     }
 
-    fun slugExists(slug: String): Boolean = transaction {
-        Articles.select { Articles.slug eq slug }.count() > 0
+    /** The slug itself plus every "slug-N" variant already taken. Slugs never contain % or _. */
+    fun slugsLike(base: String): Set<String> = transaction {
+        Articles.slice(Articles.slug)
+            .select { (Articles.slug eq base) or (Articles.slug like "$base-%") }
+            .map { it[Articles.slug] }
+            .toSet()
     }
+
+    /** Runs [block] in one read-only, repeatable-read transaction; nested calls join it. */
+    fun <T> consistentRead(block: () -> T): T =
+        transaction(Connection.TRANSACTION_REPEATABLE_READ, readOnly = true) { block() }
 
     fun findIdBySlug(slug: String): Long? = transaction {
         Articles.select { Articles.slug eq slug }.map { it[Articles.id].value }.firstOrNull()

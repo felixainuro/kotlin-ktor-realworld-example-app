@@ -6,6 +6,7 @@ import io.realworld.app.web.rules.AppRule
 import org.apache.http.HttpStatus
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
 
@@ -50,7 +51,8 @@ class UserControllerTest {
 
         assertEquals(response.status, HttpStatus.SC_OK)
         assertEquals(response.body.user?.username, userDTO.user?.username)
-        assertEquals(response.body.user?.password, userDTO.user?.password)
+        // The response must never echo the password (it used to, in plain text).
+        assertNull(response.body.user?.password)
     }
 
 //    @Test
@@ -70,7 +72,8 @@ class UserControllerTest {
 
         assertEquals(response.status, HttpStatus.SC_OK)
         assertNotNull(response.body.user?.username)
-        assertNotNull(response.body.user?.password)
+        // The stored hash must never leave the server (it used to).
+        assertNull(response.body.user?.password)
         assertNotNull(response.body.user?.token)
     }
 

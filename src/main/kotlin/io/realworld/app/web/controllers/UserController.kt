@@ -12,7 +12,7 @@ class UserController(private val userService: UserService) {
     suspend fun login(ctx: ApplicationCall) {
         ctx.receive<UserDTO>().apply {
             userService.authenticate(this.validLogin()).apply {
-                ctx.respond(UserDTO(this))
+                ctx.respond(UserDTO(this.withoutPassword()))
             }
         }
     }
@@ -20,7 +20,7 @@ class UserController(private val userService: UserService) {
     suspend fun register(ctx: ApplicationCall) {
         ctx.receive<UserDTO>().apply {
             userService.create(this.validRegister()).apply {
-                ctx.respond(UserDTO(this))
+                ctx.respond(UserDTO(this.withoutPassword()))
             }
         }
     }
@@ -33,7 +33,7 @@ class UserController(private val userService: UserService) {
     }
 
     suspend fun getCurrent(ctx: ApplicationCall) {
-        ctx.respond(UserDTO(ctx.authentication.principal()))
+        ctx.respond(UserDTO(ctx.authentication.principal<User>()?.withoutPassword()))
     }
 
     suspend fun update(ctx: ApplicationCall) {
@@ -41,8 +41,12 @@ class UserController(private val userService: UserService) {
         require(!email.isNullOrBlank()) { "User not logged." }
         ctx.receive<UserDTO>().also { userDto ->
             userService.update(email, userDto.validToUpdate()).apply {
-                ctx.respond(UserDTO(this))
+                ctx.respond(UserDTO(this?.withoutPassword()))
             }
         }
     }
+
+    // User responses never carry the password: register used to echo it in plain text and
+    // login / current user returned the stored hash.
+    private fun User.withoutPassword() = copy(password = null)
 }

@@ -19,12 +19,15 @@ This codebase is a partial implementation. Be aware of what works before buildin
 
 | Area | Status |
 |---|---|
-| Users: register, login, current user, update | Working, covered by `UserControllerTest` |
+| Users: register, login, current user, update | Working, covered by `UserControllerTest` and `ReviewFindingsTest` |
 | Tags | Working |
 | Articles: create, favorite, unfavorite | Working, added for the popular feed |
 | `GET /api/articles/feed/popular` | Working, spec in [docs/popular-articles.md](docs/popular-articles.md) |
 | Articles: list, filter, feed, get, update, delete | Stubs, logic still commented out |
 | Comments, profiles, follow | Stubs |
+
+Known security gaps that are not fixed yet: the JWT signing key is hard-coded, so anyone with the
+source can mint a token, and passwords are an unsalted HMAC with that same key. See AGENT_WORKLOG.md.
 
 The RealWorld Postman suite currently passes 88 of 104 assertions. CI fails if any assertion
 that passes today stops passing (see `spec-api/passing-assertions.txt`).

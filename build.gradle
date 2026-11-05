@@ -36,6 +36,9 @@ java {
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
     compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    // Compile against the JDK 17 class library even on JDK 21, so a 21-only API call fails the
+    // build on every CI leg instead of only failing at runtime on 17.
+    compilerOptions.freeCompilerArgs.add("-Xjdk-release=17")
 }
 
 dependencies {

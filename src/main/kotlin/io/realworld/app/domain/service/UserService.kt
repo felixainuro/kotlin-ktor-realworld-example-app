@@ -16,13 +16,15 @@ class UserService(private val jwtProvider: JwtProvider, private val userReposito
         userRepository.findByEmail(user.email).apply {
             require(this == null) { "Email already registered!" }
         }
-        userRepository.create(user.copy(password = String(base64Encoder.encode(Cipher.encrypt(user.password)))))
+        // Without this the unique index rejects the insert and the caller gets a 500.
+        require(userRepository.findByUsername(user.username!!) == null) { "Username already taken!" }
+        userRepository.create(user.copy(password = hashPassword(user.password!!)))
         return user.copy(token = generateJwtToken(user))
     }
 
     fun authenticate(user: User): User {
         val userFound = userRepository.findByEmail(user.email)
-        if (userFound?.password == String(base64Encoder.encode(Cipher.encrypt(user.password)))) {
+        if (userFound?.password == hashPassword(user.password!!)) {
             return userFound.copy(token = generateJwtToken(userFound))
         }
         throw UnauthorizedException("email or password invalid!")
@@ -42,8 +44,14 @@ class UserService(private val jwtProvider: JwtProvider, private val userReposito
     }
 
     fun update(email: String, user: User): User? {
-        return userRepository.update(email, user)
+        // A new password must be stored hashed like at registration, or the user can never log in
+        // again. A blank password means "unchanged". The response carries a fresh token because
+        // the old one names the old email.
+        val toSave = user.copy(password = user.password?.takeIf { it.isNotBlank() }?.let(::hashPassword))
+        return userRepository.update(email, toSave)?.let { it.copy(token = generateJwtToken(it)) }
     }
+
+    private fun hashPassword(password: String): String = String(base64Encoder.encode(Cipher.encrypt(password)))
 
     private fun generateJwtToken(user: User): String? {
         return jwtProvider.createJWT(user)

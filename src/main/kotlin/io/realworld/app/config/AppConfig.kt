@@ -115,5 +115,8 @@ fun Application.mainModule() {
             articles(articleController, commentController)
             tags(tagController)
         }
+        // GET /tags was the only endpoint that worked before routes moved under /api. Kept as an
+        // alias so anything calling it doesn't break.
+        tags(tagController)
     }
 }

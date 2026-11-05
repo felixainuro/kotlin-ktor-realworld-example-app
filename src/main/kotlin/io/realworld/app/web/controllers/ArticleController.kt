@@ -16,15 +16,19 @@ class ArticleController(private val articleService: ArticleService) {
     /** GET /api/articles/feed/popular. Login optional; limit 1..100 (default 20), offset >= 0. */
     suspend fun popular(ctx: ApplicationCall) {
         val limit = ctx.intParam("limit", default = 20, min = 1, max = 100)
-        val offset = ctx.intParam("offset", default = 0, min = 0, max = Int.MAX_VALUE)
-        ctx.respond(articleService.findPopular(ctx.authentication.principal<User>(), limit, offset.toLong()))
+        // Long, not Int: an offset past the end is an empty page however large it is (R5).
+        val offset = ctx.longParam("offset", default = 0, min = 0, max = Long.MAX_VALUE)
+        ctx.respond(articleService.findPopular(ctx.authentication.principal<User>(), limit, offset))
     }
 
-    private fun ApplicationCall.intParam(name: String, default: Int, min: Int, max: Int): Int {
+    private fun ApplicationCall.intParam(name: String, default: Int, min: Int, max: Int): Int =
+        longParam(name, default.toLong(), min.toLong(), max.toLong()).toInt()
+
+    private fun ApplicationCall.longParam(name: String, default: Long, min: Long, max: Long): Long {
         val raw = parameters[name] ?: return default
-        val value = raw.toIntOrNull()
+        val value = raw.toLongOrNull()
         require(value != null && value in min..max) {
-            if (max == Int.MAX_VALUE) "$name must be a whole number of $min or more."
+            if (max == Long.MAX_VALUE) "$name must be a whole number of $min or more."
             else "$name must be a whole number from $min to $max."
         }
         return value

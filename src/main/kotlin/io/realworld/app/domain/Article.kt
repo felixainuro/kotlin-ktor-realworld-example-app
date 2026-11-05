@@ -10,7 +10,11 @@ data class ArticleDTO(val article: Article?) {
                 !article.description.isNullOrBlank() &&
                 article.body.isNotBlank()
         ) { "Article title, description and body are required." }
-        require(article.title!!.length <= 255) { "Article title must be 255 characters or fewer." }
+        require(article.title.length <= 255) { "Article title must be 255 characters or fewer." }
+        // JSON can smuggle nulls into a List<String>; widen the type so the check is real.
+        val tags: List<String?> = article.tagList
+        require(tags.all { it != null }) { "Tags must be strings." }
+        require(tags.all { it!!.trim().length <= 100 }) { "Each tag must be 100 characters or fewer." }
         return article
     }
 }
