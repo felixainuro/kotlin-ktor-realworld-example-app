@@ -23,6 +23,7 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.realworld.app.domain.exceptions.NotFoundException
 import io.realworld.app.domain.exceptions.UnauthorizedException
+import io.realworld.app.utils.Cipher
 import io.realworld.app.utils.JwtProvider
 import io.realworld.app.web.ErrorResponse
 import io.realworld.app.web.articles
@@ -39,6 +40,9 @@ import org.kodein.di.generic.instance
 const val SERVER_PORT = 8080
 
 fun setup(isCio: Boolean = true): ApplicationEngine {
+    // Load the signing key before any server thread exists, so a bad JWT_SECRET stops the
+    // process with a clear error instead of leaving a server that answers nothing.
+    Cipher.algorithm
     DbConfig.setup("jdbc:h2:mem:DATABASE_TO_UPPER=false;", "sa", "")
     // Typed explicitly: the inferred common supertype is Ktor's engine-internal BaseApplicationEngine.
     val engine: ApplicationEngineFactory<ApplicationEngine, out ApplicationEngine.Configuration> =

@@ -18,6 +18,7 @@ ext {
     exposed_version = "0.45.0"
     junit_version = "4.13.2"
     unirest_version = "1.4.9"
+    bcrypt_version = "0.10.2"
 }
 
 repositories {
@@ -52,6 +53,7 @@ dependencies {
     implementation "com.h2database:h2:$h2_version"
     implementation "org.jetbrains.exposed:exposed-core:$exposed_version"
     implementation "org.jetbrains.exposed:exposed-jdbc:$exposed_version"
+    implementation "at.favre.lib:bcrypt:$bcrypt_version"
 
     testImplementation "junit:junit:$junit_version"
     testImplementation "com.mashape.unirest:unirest-java:$unirest_version"

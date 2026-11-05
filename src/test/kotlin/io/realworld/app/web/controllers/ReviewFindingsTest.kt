@@ -1,14 +1,20 @@
 package io.realworld.app.web.controllers
 
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.mashape.unirest.http.Unirest
+import io.realworld.app.domain.repository.Users
+import io.realworld.app.utils.JwtProvider
 import io.realworld.app.web.rules.AppRule
 import io.realworld.app.web.util.HttpUtil
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.Test
 import java.net.URLEncoder
 import java.util.concurrent.CountDownLatch
@@ -145,6 +151,54 @@ class ReviewFindingsTest {
         val response = Unirest.get("http://localhost:${appRule.port}/tags").asString()
         assertEquals(200, response.status)
         assertTrue(json.readTree(response.body).path("tags").isArray)
+    }
+
+    // Finding 4: the signing key was hard-coded in the source, so anyone could mint a token.
+    @Test
+    fun `a token signed with the old hard-coded key is rejected`() {
+        register("victim@example.com", "victim", "pw")
+        val forged = JWT.create()
+            .withIssuer(JwtProvider.issuer)
+            .withAudience(JwtProvider.audience)
+            .withClaim("email", "victim@example.com")
+            .sign(Algorithm.HMAC256("something-very-secret-here"))
+
+        val (status, body) = send("POST", "/articles", """{"article":{"title":"t","description":"d","body":"b"}}""", forged)
+
+        assertEquals(body.toString(), 401, status)
+    }
+
+    // Finding 2, second half: passwords were an unsalted HMAC under that same public key.
+    @Test
+    fun `passwords are stored as salted bcrypt hashes`() {
+        register("one@example.com", "one", "same-password")
+        register("two@example.com", "two", "same-password")
+        val stored = transaction {
+            listOf("one@example.com", "two@example.com").map { email ->
+                Users.select { Users.email eq email }.single()[Users.password]
+            }
+        }
+        stored.forEach { assertTrue("not a bcrypt hash: $it", it.startsWith("\$2a\$")) }
+        assertTrue("same password must hash differently (salt): $stored", stored[0] != stored[1])
+    }
+
+    // Updating to someone else's email or username hit the unique index and returned 500.
+    @Test
+    fun `updating to a taken email or username gives 422`() {
+        register("owner@example.com", "owner", "pw")
+        register("other@example.com", "other", "pw")
+        val token = login("other@example.com", "pw").path("user").path("token").asText()
+
+        val email = send("PUT", "/user", """{"user":{"email":"owner@example.com"}}""", token)
+        assertEquals(email.second.toString(), 422, email.first)
+        assertEquals("Email already registered!", email.second.path("errors").path("body").path(0).asText())
+
+        val name = send("PUT", "/user", """{"user":{"email":"other@example.com","username":"owner"}}""", token)
+        assertEquals(name.second.toString(), 422, name.first)
+        assertEquals("Username already taken!", name.second.path("errors").path("body").path(0).asText())
+
+        val own = send("PUT", "/user", """{"user":{"email":"other@example.com","username":"other"}}""", token)
+        assertEquals("keeping your own email and username is fine: ${own.second}", 200, own.first)
     }
 
     private fun register(email: String, username: String, password: String): JsonNode {
