@@ -15,12 +15,12 @@ import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
-@Ignore
 class ArticleControllerTest {
     @Rule
     @JvmField
     val appRule = AppRule()
 
+    @Ignore("Endpoint is still a stub; see README project status")
     @Test
     fun `get all articles`() {
         appRule.http.createArticle()
@@ -32,6 +32,7 @@ class ArticleControllerTest {
         assertEquals(response.body.articles.size, response.body.articlesCount)
     }
 
+    @Ignore("Endpoint is still a stub; see README project status")
     @Test
     fun `get all articles with auth`() {
         appRule.http.createArticle()
@@ -45,6 +46,7 @@ class ArticleControllerTest {
         assertTrue(response.body.articles.first().tagList.isNotEmpty())
     }
 
+    @Ignore("Endpoint is still a stub; see README project status")
     @Test
     fun `get all articles by author`() {
         val author = "user_name_test"
@@ -60,6 +62,7 @@ class ArticleControllerTest {
         }
     }
 
+    @Ignore("Endpoint is still a stub; see README project status")
     @Test
     fun `get all articles by author with auth`() {
         appRule.http.createArticle()
@@ -76,6 +79,7 @@ class ArticleControllerTest {
         }
     }
 
+    @Ignore("Endpoint is still a stub; see README project status")
     @Test
     fun `get all articles favorited by username`() {
         val responseCreate = appRule.http.createArticle()
@@ -93,6 +97,7 @@ class ArticleControllerTest {
         assertTrue(response.body.articles.first().favoritesCount > 0)
     }
 
+    @Ignore("Endpoint is still a stub; see README project status")
     @Test
     fun `get all articles favorited by username with auth`() {
         val responseCreate = appRule.http.createArticle()
@@ -108,6 +113,7 @@ class ArticleControllerTest {
         assertTrue(response.body.articles.first().tagList.isNotEmpty())
     }
 
+    @Ignore("Endpoint is still a stub; see README project status")
     @Test
     fun `get all articles by tag`() {
         val responseCreate = appRule.http.createArticle()
@@ -137,6 +143,7 @@ class ArticleControllerTest {
         assertEquals(response.body.article?.tagList, article.tagList)
     }
 
+    @Ignore("Endpoint is still a stub; see README project status")
     @Test
     fun `get all articles of feed`() {
         appRule.http.createArticle()
@@ -156,6 +163,7 @@ class ArticleControllerTest {
         assertTrue(response.body.articles.first().tagList.isNotEmpty())
     }
 
+    @Ignore("Endpoint is still a stub; see README project status")
     @Test
     fun `get single article by slug`() {
         val responseArticle = appRule.http.createArticle()
@@ -170,6 +178,7 @@ class ArticleControllerTest {
         assertTrue(response.body.article?.tagList?.isNotEmpty() ?: false)
     }
 
+    @Ignore("Endpoint is still a stub; see README project status")
     @Test
     fun `update article by slug`() {
         val responseCreated = appRule.http.createArticle()
@@ -230,6 +239,7 @@ class ArticleControllerTest {
         assertTrue(response.body.article?.tagList?.isNotEmpty() ?: false)
     }
 
+    @Ignore("Endpoint is still a stub; see README project status")
     @Test
     fun `delete article by slug`() {
         val responseCreate = appRule.http.createArticle()
