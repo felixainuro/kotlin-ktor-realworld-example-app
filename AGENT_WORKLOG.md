@@ -2,7 +2,7 @@
 
 **Walkthrough video:** _link to be added_
 
-**Feature:** `GET /api/articles/feed/popular` ([spec](docs/popular-articles.md)). About 70 minutes from clone to the last commit.
+**Feature:** `GET /api/articles/feed/popular` ([spec](docs/popular-articles.md)). About 80 minutes from clone to the last commit.
 
 ## Harnesses and models
 
