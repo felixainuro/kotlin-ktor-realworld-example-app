@@ -1,12 +1,34 @@
 package io.realworld.app.web.controllers
 
 import io.ktor.application.ApplicationCall
+import io.ktor.auth.authentication
 import io.ktor.request.receive
+import io.ktor.response.respond
 import io.realworld.app.domain.ArticleDTO
 import io.realworld.app.domain.ArticlesDTO
+import io.realworld.app.domain.User
+import io.realworld.app.domain.service.ArticleService
 
-class ArticleController {
-//class ArticleController(private val articleService: ArticleService) {
+// findBy, feed, get, update and delete are still the original stubs. Only the endpoints the
+// popular feed depends on (create, favorite, unfavorite) are implemented; see docs/popular-articles.md.
+class ArticleController(private val articleService: ArticleService) {
+
+    /** GET /api/articles/feed/popular. Login optional; limit 1..100 (default 20), offset >= 0. */
+    suspend fun popular(ctx: ApplicationCall) {
+        val limit = ctx.intParam("limit", default = 20, min = 1, max = 100)
+        val offset = ctx.intParam("offset", default = 0, min = 0, max = Int.MAX_VALUE)
+        ctx.respond(articleService.findPopular(ctx.authentication.principal<User>(), limit, offset.toLong()))
+    }
+
+    private fun ApplicationCall.intParam(name: String, default: Int, min: Int, max: Int): Int {
+        val raw = parameters[name] ?: return default
+        val value = raw.toIntOrNull()
+        require(value != null && value in min..max) {
+            if (max == Int.MAX_VALUE) "$name must be a whole number of $min or more."
+            else "$name must be a whole number from $min to $max."
+        }
+        return value
+    }
 
     fun findBy(ctx: ApplicationCall): ArticlesDTO {
         val tag = ctx.parameters["tag"]
@@ -37,12 +59,9 @@ class ArticleController {
         return ArticleDTO(null)
     }
 
-    suspend fun create(ctx: ApplicationCall): ArticleDTO {
-        ctx.receive<ArticleDTO>()
-        //            articleService.create(ctx.attribute("email"), article).apply {
-//                ctx.json(ArticleDTO(this))
-//            }
-        return ArticleDTO(null)
+    suspend fun create(ctx: ApplicationCall) {
+        val article = ctx.receive<ArticleDTO>().validCreate()
+        ctx.respond(ArticleDTO(articleService.create(ctx.currentUser(), article)))
     }
 
     suspend fun update(ctx: ApplicationCall): ArticleDTO {
@@ -59,19 +78,15 @@ class ArticleController {
         //            articleService.delete(slug)
     }
 
-    fun favorite(ctx: ApplicationCall): ArticleDTO {
-        ctx.parameters["slug"]
-        //            articleService.favorite(ctx.attribute("email"), slug).apply {
-//                ctx.json(ArticleDTO(this))
-//            }
-        return ArticleDTO(null)
+    suspend fun favorite(ctx: ApplicationCall) {
+        ctx.respond(ArticleDTO(articleService.favorite(ctx.currentUser(), ctx.parameters["slug"]!!)))
     }
 
-    fun unfavorite(ctx: ApplicationCall): ArticleDTO {
-        ctx.parameters["slug"]
-        //            articleService.unfavorite(ctx.attribute("email"), slug).apply {
-//                ctx.json(ArticleDTO(this))
-//            }
-        return ArticleDTO(null)
+    suspend fun unfavorite(ctx: ApplicationCall) {
+        ctx.respond(ArticleDTO(articleService.unfavorite(ctx.currentUser(), ctx.parameters["slug"]!!)))
     }
+
+    // Only called on routes wrapped in a required authenticate {} block.
+    private fun ApplicationCall.currentUser(): User =
+        authentication.principal() ?: error("Route must be wrapped in authenticate {}")
 }

@@ -2,7 +2,18 @@ package io.realworld.app.domain
 
 import java.util.*
 
-data class ArticleDTO(val article: Article?)
+data class ArticleDTO(val article: Article?) {
+    fun validCreate(): Article {
+        require(
+            article != null &&
+                !article.title.isNullOrBlank() &&
+                !article.description.isNullOrBlank() &&
+                article.body.isNotBlank()
+        ) { "Article title, description and body are required." }
+        require(article.title!!.length <= 255) { "Article title must be 255 characters or fewer." }
+        return article
+    }
+}
 
 data class ArticlesDTO(val articles: List<Article>, val articlesCount: Int)
 

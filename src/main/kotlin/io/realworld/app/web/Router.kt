@@ -42,6 +42,11 @@ fun Route.profiles(profileController: ProfileController) {
 
 fun Route.articles(articleController: ArticleController, commentController: CommentController) {
     route("articles") {
+        // Popular is public. It must stay outside the required authenticate {} block below,
+        // or it would demand a token the way /feed does.
+        authenticate(optional = true) {
+            get("feed/popular") { articleController.popular(this.context) }
+        }
         authenticate {
             get("feed") { articleController.feed(this.context) }
             route("{slug}") {
