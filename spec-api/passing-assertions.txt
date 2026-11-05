@@ -1,0 +1,88 @@
+Articles, Favorite, Comments / Create Article / Article has "author" property
+Articles, Favorite, Comments / Create Article / Article has "body" property
+Articles, Favorite, Comments / Create Article / Article has "createdAt" property
+Articles, Favorite, Comments / Create Article / Article has "description" property
+Articles, Favorite, Comments / Create Article / Article has "favorited" property
+Articles, Favorite, Comments / Create Article / Article has "favoritesCount" property
+Articles, Favorite, Comments / Create Article / Article has "slug" property
+Articles, Favorite, Comments / Create Article / Article has "tagList" property
+Articles, Favorite, Comments / Create Article / Article has "title" property
+Articles, Favorite, Comments / Create Article / Article has "updatedAt" property
+Articles, Favorite, Comments / Create Article / Article's "createdAt" property is an ISO 8601 timestamp
+Articles, Favorite, Comments / Create Article / Article's "tagList" property is an Array
+Articles, Favorite, Comments / Create Article / Article's "updatedAt" property is an ISO 8601 timestamp
+Articles, Favorite, Comments / Create Article / Response contains "article" property
+Articles, Favorite, Comments / Create Article / favoritesCount is an integer
+Articles, Favorite, Comments / Favorite Article / Article has "author" property
+Articles, Favorite, Comments / Favorite Article / Article has "body" property
+Articles, Favorite, Comments / Favorite Article / Article has "createdAt" property
+Articles, Favorite, Comments / Favorite Article / Article has "description" property
+Articles, Favorite, Comments / Favorite Article / Article has "favorited" property
+Articles, Favorite, Comments / Favorite Article / Article has "favoritesCount" property
+Articles, Favorite, Comments / Favorite Article / Article has "slug" property
+Articles, Favorite, Comments / Favorite Article / Article has "tagList" property
+Articles, Favorite, Comments / Favorite Article / Article has "title" property
+Articles, Favorite, Comments / Favorite Article / Article has "updatedAt" property
+Articles, Favorite, Comments / Favorite Article / Article's "createdAt" property is an ISO 8601 timestamp
+Articles, Favorite, Comments / Favorite Article / Article's "tagList" property is an Array
+Articles, Favorite, Comments / Favorite Article / Article's "updatedAt" property is an ISO 8601 timestamp
+Articles, Favorite, Comments / Favorite Article / Article's 'favorited' property is true
+Articles, Favorite, Comments / Favorite Article / Article's 'favoritesCount' property is greater than 0
+Articles, Favorite, Comments / Favorite Article / Response contains "article" property
+Articles, Favorite, Comments / Favorite Article / favoritesCount is an integer
+Articles, Favorite, Comments / Unfavorite Article / Article has "author" property
+Articles, Favorite, Comments / Unfavorite Article / Article has "body" property
+Articles, Favorite, Comments / Unfavorite Article / Article has "createdAt" property
+Articles, Favorite, Comments / Unfavorite Article / Article has "description" property
+Articles, Favorite, Comments / Unfavorite Article / Article has "favorited" property
+Articles, Favorite, Comments / Unfavorite Article / Article has "favoritesCount" property
+Articles, Favorite, Comments / Unfavorite Article / Article has "slug" property
+Articles, Favorite, Comments / Unfavorite Article / Article has "tagList" property
+Articles, Favorite, Comments / Unfavorite Article / Article has "title" property
+Articles, Favorite, Comments / Unfavorite Article / Article has "updatedAt" property
+Articles, Favorite, Comments / Unfavorite Article / Article's "createdAt" property is an ISO 8601 timestamp
+Articles, Favorite, Comments / Unfavorite Article / Article's "favorited" property is false
+Articles, Favorite, Comments / Unfavorite Article / Article's "tagList" property is an Array
+Articles, Favorite, Comments / Unfavorite Article / Article's "updatedAt" property is an ISO 8601 timestamp
+Articles, Favorite, Comments / Unfavorite Article / Response contains "article" property
+Articles, Favorite, Comments / Unfavorite Article / favoritesCount is an integer
+Auth / Current User / Response contains "user" property
+Auth / Current User / User has "bio" property
+Auth / Current User / User has "email" property
+Auth / Current User / User has "image" property
+Auth / Current User / User has "token" property
+Auth / Current User / User has "username" property
+Auth / Login / Response contains "user" property
+Auth / Login / User has "bio" property
+Auth / Login / User has "email" property
+Auth / Login / User has "image" property
+Auth / Login / User has "token" property
+Auth / Login / User has "username" property
+Auth / Login and Remember Token / Global variable "token" has been set
+Auth / Login and Remember Token / Response contains "user" property
+Auth / Login and Remember Token / User has "bio" property
+Auth / Login and Remember Token / User has "email" property
+Auth / Login and Remember Token / User has "image" property
+Auth / Login and Remember Token / User has "token" property
+Auth / Login and Remember Token / User has "username" property
+Auth / Register / Response contains "user" property
+Auth / Register / User has "bio" property
+Auth / Register / User has "email" property
+Auth / Register / User has "image" property
+Auth / Register / User has "token" property
+Auth / Register / User has "username" property
+Auth / Update User / Response contains "user" property
+Auth / Update User / User has "bio" property
+Auth / Update User / User has "email" property
+Auth / Update User / User has "image" property
+Auth / Update User / User has "token" property
+Auth / Update User / User has "username" property
+Profiles / Register Celeb / Response contains "user" property
+Profiles / Register Celeb / User has "bio" property
+Profiles / Register Celeb / User has "email" property
+Profiles / Register Celeb / User has "image" property
+Profiles / Register Celeb / User has "token" property
+Profiles / Register Celeb / User has "username" property
+Tags / All Tags / "tags" property returned as array
+Tags / All Tags / Response code is 200 OK
+Tags / All Tags / Response contains "tags" property

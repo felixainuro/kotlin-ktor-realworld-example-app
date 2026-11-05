@@ -1,4 +1,3 @@
-[![Travis](https://img.shields.io/travis/Rudge/kotlin-ktor-realworld-example-app.svg)](https://travis-ci.org/Rudge/kotlin-ktor-realworld-example-app/builds)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/5b6503dfa3024a0dbbf173e333f80bcf)](https://app.codacy.com/app/Rudge/kotlin-ktor-realworld-example-app?utm_source=github.com&utm_medium=referral&utm_content=Rudge/kotlin-ktor-realworld-example-app&utm_campaign=Badge_Grade_Dashboard)
 [![BCH compliance](https://bettercodehub.com/edge/badge/Rudge/kotlin-ktor-realworld-example-app?branch=master)](https://bettercodehub.com/)
 
@@ -13,6 +12,22 @@ This codebase was created to demonstrate a fully fledged fullstack application b
 We've gone to great lengths to adhere to the **Kotlin + Ktor** community styleguides & best practices.
 
 For more information on how to this works with other frontends/backends, head over to the [RealWorld](https://github.com/gothinkster/realworld) repo.
+
+## Project status (November 2026)
+
+This codebase is a partial implementation. Be aware of what works before building on it.
+
+| Area | Status |
+|---|---|
+| Users: register, login, current user, update | Working, covered by `UserControllerTest` |
+| Tags | Working |
+| Articles: create, favorite, unfavorite | Working, added for the popular feed |
+| `GET /api/articles/feed/popular` | Working, spec in [docs/popular-articles.md](docs/popular-articles.md) |
+| Articles: list, filter, feed, get, update, delete | Stubs, logic still commented out |
+| Comments, profiles, follow | Stubs |
+
+The RealWorld Postman suite currently passes 88 of 104 assertions. CI fails if any assertion
+that passes today stops passing (see `spec-api/passing-assertions.txt`).
 
 # How it works
 
@@ -53,21 +68,29 @@ Tests:
 
 # Getting started
 
-You need just JVM installed.
+You need JDK 17 or newer. CI runs on JDK 17 and 21. The Gradle wrapper downloads Gradle itself.
 
-The server is configured to start on [8080](http://localhost:7000).
+The server starts on [8080](http://localhost:8080) and serves the API under `/api`.
 
-Build:
+Build and run the tests:
 > ./gradlew clean build
 
 Start the server:
 > ./gradlew run
 
-In the project have the [spec-api](https://github.com/Rudge/kotlin-ktor-realworld-example-app/tree/master/spec-api) with the README and collections to execute backend tests specs [realworld](https://github.com/gothinkster/realworld).
+Run the RealWorld Postman suite in [spec-api](spec-api) against the running server (needs Node.js):
+> APIURL=http://localhost:8080/api ./spec-api/run-api-tests.sh
 
-Execute tests and start the server:
+Check that the tests catch known bugs in the popular feed (plants each bug, runs the suite, restores the code):
+> python3 scripts/check-tests-catch-bugs.py
 
-> ./gradlew run & APIURL=http://localhost:8080 ./spec-api/run-api-tests.sh
+## Continuous integration
+
+`.github/workflows/ci.yml` runs on every push to master and every pull request:
+
+- **Build and test** on JDK 17 and 21, with Gradle caching. Failures are listed in the job summary and annotated.
+- **Tests catch planted bugs** runs `scripts/check-tests-catch-bugs.py`.
+- **RealWorld API spec** starts the app, runs the Postman suite and fails on any regression against `spec-api/passing-assertions.txt`.
 
 # Help
 

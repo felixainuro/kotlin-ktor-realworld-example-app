@@ -1,0 +1,117 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A newer push to the same branch makes the older run pointless.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Build and test (JDK ${{ matrix.java }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false # always report both JDKs, so a JDK-specific failure is obvious
+      matrix:
+        java: [ '17', '21' ]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+      # Caches the Gradle distribution and dependencies; writes the cache only from master,
+      # reads it everywhere. Also validates the committed wrapper jar's checksum.
+      # 'basic' is the open-source cache (actions/cache); the default is a commercial service.
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-provider: basic
+      - name: Build and test
+        run: ./gradlew build --stacktrace
+      - name: Test summary
+        if: always()
+        run: python3 scripts/junit-summary.py build/test-results/test "JDK ${{ matrix.java }}"
+      - name: Upload HTML test report
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-report-jdk${{ matrix.java }}
+          path: build/reports/tests/test
+          retention-days: 7
+
+  # Proves the tests have teeth: plants known bugs in the popular-articles code one at a time
+  # and requires the test suite to fail for every one of them.
+  planted-bugs:
+    name: Tests catch planted bugs
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-provider: basic
+      - name: Plant each bug and require a failing test
+        run: python3 scripts/check-tests-catch-bugs.py
+
+  # Bonus: the RealWorld Postman suite against the running app. Parts of the API are still
+  # stubs, so the gate is "nothing that passed before may fail" (spec-api/passing-assertions.txt).
+  api-spec:
+    name: RealWorld API spec (Postman)
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-provider: basic
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Start the API
+        run: |
+          ./gradlew installDist
+          build/install/api/bin/api > app.log 2>&1 &
+          for _ in $(seq 1 60); do
+            curl -sf -o /dev/null http://localhost:8080/api/tags && exit 0
+            sleep 1
+          done
+          echo "::error::API did not start within 60s"; cat app.log; exit 1
+      - name: Run the Postman suite
+        # newman exits non-zero while stub endpoints fail; the ratchet below is the gate.
+        run: |
+          npx --yes newman@6.2.1 run spec-api/Conduit.postman_collection.json \
+            --global-var "APIURL=http://localhost:8080/api" \
+            --global-var "USERNAME=ci${{ github.run_id }}" \
+            --global-var "EMAIL=ci${{ github.run_id }}@mail.com" \
+            --global-var "PASSWORD=password" \
+            --reporters cli,json --reporter-json-export newman.json || true
+      - name: Compare with known-passing assertions
+        run: python3 scripts/spec-ratchet.py newman.json spec-api/passing-assertions.txt
+      - name: Upload spec run and app log
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: api-spec-run
+          path: |
+            newman.json
+            app.log
+          retention-days: 7
