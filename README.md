@@ -1,3 +1,4 @@
+[![CI](https://github.com/felixainuro/kotlin-ktor-realworld-example-app/actions/workflows/ci.yml/badge.svg)](https://github.com/felixainuro/kotlin-ktor-realworld-example-app/actions/workflows/ci.yml)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/5b6503dfa3024a0dbbf173e333f80bcf)](https://app.codacy.com/app/Rudge/kotlin-ktor-realworld-example-app?utm_source=github.com&utm_medium=referral&utm_content=Rudge/kotlin-ktor-realworld-example-app&utm_campaign=Badge_Grade_Dashboard)
 [![BCH compliance](https://bettercodehub.com/edge/badge/Rudge/kotlin-ktor-realworld-example-app?branch=master)](https://bettercodehub.com/)
 

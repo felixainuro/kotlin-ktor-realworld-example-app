@@ -37,7 +37,7 @@ Each check answers a different question. None of them relies on the agent that w
 | Planted bugs (`scripts/check-tests-catch-bugs.py`) | Would the tests notice a wrong implementation? | 0 of 12 caught before the acceptance tests. 12 of 12 after, plus a positive control. |
 | Cold review by a fresh agent | What did everyone else miss? | 11 findings plus build notes, 10 reproduced over HTTP. Fixed: 9 findings and 2 build notes. 8 of the fixes have a regression test that fails on the old code, and the rest were checked by hand. 2 findings recorded but not fixed. |
 | RealWorld Postman suite | Did the existing contract regress? | 88 of 104 assertions pass, gated by a ratchet in CI |
-| JDK matrix | Does it run on both JDKs? | Full build and tests green on 17 and 21: 47 pass, 17 skipped stubs. Compiled against the JDK 17 API on both, so a 21-only call fails the build. |
+| JDK matrix and CI | Does it hold on a clean machine? | Green on 17 and 21: 47 pass, 17 skipped stubs. Compiled against the JDK 17 API on both. The [first CI run](https://github.com/felixainuro/kotlin-ktor-realworld-example-app/actions/runs/41946711496) passed all four jobs in about 3.5 minutes. |
 
 The lead agent read the acceptance tests before trusting them. The ranking expectations are written out by hand, not computed by code that could share a bug with the implementation. The pagination test requires pages to equal exact consecutive slices for page sizes 1 through 4.
 
