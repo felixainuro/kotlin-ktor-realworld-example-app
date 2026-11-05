@@ -14,11 +14,8 @@ import io.ktor.routing.Routing
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.ApplicationEngine
 import io.ktor.server.engine.ApplicationEngineFactory
-import io.ktor.server.engine.BaseApplicationEngine
-import io.ktor.server.engine.EngineAPI
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
-import io.ktor.util.KtorExperimentalAPI
 import io.realworld.app.utils.JwtProvider
 import io.realworld.app.web.ErrorResponse
 import io.realworld.app.web.articles
@@ -34,19 +31,18 @@ import org.kodein.di.generic.instance
 
 const val SERVER_PORT = 8080
 
-@KtorExperimentalAPI
-@EngineAPI
-fun setup(isCio: Boolean = true): BaseApplicationEngine {
+fun setup(isCio: Boolean = true): ApplicationEngine {
     DbConfig.setup("jdbc:h2:mem:DATABASE_TO_UPPER=false;", "sa", "")
-    return server(if (isCio) CIO else Netty)
+    // Typed explicitly: the inferred common supertype is Ktor's engine-internal BaseApplicationEngine.
+    val engine: ApplicationEngineFactory<ApplicationEngine, out ApplicationEngine.Configuration> =
+        if (isCio) CIO else Netty
+    return server(engine)
 }
 
-@KtorExperimentalAPI
-@EngineAPI
 fun server(
-    engine: ApplicationEngineFactory<BaseApplicationEngine,
+    engine: ApplicationEngineFactory<ApplicationEngine,
         out ApplicationEngine.Configuration>
-): BaseApplicationEngine {
+): ApplicationEngine {
     return embeddedServer(
         engine,
         port = SERVER_PORT,
@@ -55,7 +51,6 @@ fun server(
     )
 }
 
-@KtorExperimentalAPI
 fun Application.mainModule() {
     val userController by ModulesConfig.kodein.instance<UserController>()
     val profileController by ModulesConfig.kodein.instance<ProfileController>()
